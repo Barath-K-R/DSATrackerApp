@@ -1,0 +1,10 @@
+.progressbar-container{
+     background-color: white;
+     height:10px;
+     border-radius:20px;
+}
+.progressbar-wrapper{
+    height: 100%;
+    width: 100%;
+    border-radius: 20px 0px 0px 20px;
+}

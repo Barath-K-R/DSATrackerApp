@@ -1,0 +1,43 @@
+.problemslist-container{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.problem-table{
+    height:100%;
+    width:100%
+}
+th, td {
+    padding: 4px;
+    text-align: left;
+  }
+
+.table-text{
+    text-decoration: none;
+    color: white;
+}
+.problemslist-container>tr{
+    display: flex;
+    align-items: flex-start;
+}
+
+.tick-container{
+    border:2px solid #7a7a7a;
+    cursor: pointer;
+    height: 15px;
+    width:15px;
+    border-radius: 5px;
+}
+.tick-icon{
+    color: white;
+}
+.star{
+    cursor: pointer;
+}
+.table-text:hover{
+   color: rgb(21, 80, 229);
+   transition: color 0.5s;
+}
+.tick-container:hover{
+    border-color:rgb(46, 188, 46) ;
+}

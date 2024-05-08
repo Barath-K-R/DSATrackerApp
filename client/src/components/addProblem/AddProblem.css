@@ -1,0 +1,42 @@
+.addproblem-container{
+    color: white;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.addproblem-wrapper{
+    display: flex;
+    flex-direction: column;
+    background-color: #4a4a4a;
+    width: 420px;
+    height:100vh;
+    justify-content: center;
+    align-items: center;
+    border-radius: 40px;
+    padding-top: 10px;
+}
+.addproblem-wrapper>form{
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+}
+.input{
+    display: flex;
+    flex-direction: column;
+}
+.addproblem-wrapper input,
+.addproblem-wrapper select {
+    height:20px;
+    width: 150px;
+}
+.button{
+    display: flex;
+    justify-content: center;
+}
+.button>button{
+   width: 60px;
+   height: 25px;
+   border-radius: 10px;
+}

@@ -1,0 +1,25 @@
+.header-container{
+    background-color: #4a4a4a;
+    height:10vh;
+    width:100%;
+    display: flex;
+    color: white;
+    justify-content: space-between;
+}
+.header-title{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 20px;
+    padding-left: 30px;
+}
+.header-title>img{
+    height: 40px;
+    width: 40px;
+}
+.header-menus{
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding-right: 50px;
+}
