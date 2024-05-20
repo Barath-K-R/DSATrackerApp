@@ -4,9 +4,11 @@ import { AiFillStar } from "react-icons/ai";
 import { GoCheck } from "react-icons/go";
 
 import HintModal from "../hintModal/HintModal";
+import CodeModal from "../codeModal/codeModal";
 import "./ProblemsList.css";
 const ProblemsList = ({ currproblems, handleStatusClick, handleStarClick }) => {
   const [ModalOpened, setModalOpened] = useState(false);
+  const [codeModalOpened, setCodeModalOpened] = useState(false);
   return (
     <div className="problemslist-container">
       <table className="problem-table">
@@ -19,6 +21,7 @@ const ProblemsList = ({ currproblems, handleStatusClick, handleStarClick }) => {
             <th>Hint</th>
             <th>TC</th>
             <th>SC</th>
+            <th>Code</th>
           </tr>
         </thead>
         <tbody>
@@ -62,12 +65,25 @@ const ProblemsList = ({ currproblems, handleStatusClick, handleStarClick }) => {
                 </td>
                 <td>{problem.difficulty}</td>
                 <td>
-                  <button onClick={()=>setModalOpened(prev=>!prev)}>click to View</button>
+                  <button onClick={() => setModalOpened((prev) => !prev)}>
+                    click to View
+                  </button>
                   {console.log(ModalOpened)}
-                  {ModalOpened && <HintModal setModalOpened={setModalOpened} problem={problem}/>}
+                  {ModalOpened && (
+                    <HintModal
+                      setModalOpened={setModalOpened}
+                      problem={problem}
+                    />
+                  )}
                 </td>
                 <td>{problem.TimeComplexity}</td>
                 <td>{problem.SpaceComplexity}</td>
+                <td>
+                  <button onClick={() => setCodeModalOpened((prev) => !prev)}>
+                   Java
+                  </button>
+                  {codeModalOpened && <CodeModal problem={problem} setCodeModalOpened={setCodeModalOpened}/>}
+                </td>
               </tr>
             );
           })}

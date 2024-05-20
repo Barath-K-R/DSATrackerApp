@@ -1,0 +1,27 @@
+.code-container{
+     position: absolute;
+     background-color: #2f3136;
+     position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:90%;
+    width: 90%;
+    z-index: 999;
+    top:40px;
+    left:40px;
+}
+.codemodal-wrapper{
+     background-color: #4a4a4a;
+}
+pre {
+     background-color: #4a4a4a;
+     border-radius: 5px;
+     overflow-x: auto;
+ }
+.close{
+     position: absolute;
+     
+     right:70px;
+     cursor: pointer;
+ }

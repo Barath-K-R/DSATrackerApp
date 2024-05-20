@@ -92,6 +92,10 @@ const AddProblem = () => {
             <label htmlFor="">SpaceComplexity</label>
             <input type="text" name="SpaceComplexity" onChange={handleChange} />
           </div>
+          <div className="input">
+            <label htmlFor="code">Code</label>
+            <textarea name="code" className="code" onChange={handleChange}/>
+          </div>
           <div className="button">
             <button type="submit">Add</button>
           </div>
