@@ -101,6 +101,7 @@ export const deleteProblem = asyncErrorHandler(async (req, res) => {
 });
 
 export const moveProblem = asyncErrorHandler(async (req, res) => {
+    
     const { problemId, newType } = req.body;
 
     if (!problemId || !newType) {
@@ -117,10 +118,13 @@ export const moveProblem = asyncErrorHandler(async (req, res) => {
         throw new CustomError('Target problem type does not exist', 404);
     }
 
+    
+    
     problem.type = problemTypeExists._id;
     await problem.save();
 
-    res.status(200).json({ message: 'Problem moved successfully', problem });
+    
+    res.status(200).json({ message: 'Problem moved successfully', problem, movedProblemType: newType });
 });
 
 export const getProblemStats = asyncErrorHandler(async (req, res) => {

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import { createSolution } from "../api/solutionApi.js";
 
@@ -20,6 +21,34 @@ const CreateSolutionModal = ({ isOpen, onClose, onSubmit }) => {
   const { problemName } = useParams();
   const { toggleCreateSolutionModal } = useModalContext()
   const { currentSolutions, dispatch } = useProblemContext()
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation(
+    (newSolution) => createSolution(newSolution),
+    {
+      onSuccess: (data) => {
+        console.log('solution',data)
+        dispatch({
+          type: "SET_CURRENT_SOLUTIONS",
+          payload: [...currentSolutions, data.data.solution],
+        });
+        
+        setSolutionData({
+          code: "",
+          language: "JavaScript",
+          timeComplexity: "",
+          spaceComplexity: "",
+          youtubeLink: "",
+          methodName: "",
+          note: "",
+        });
+        toggleCreateSolutionModal();
+      },
+      onError: (error) => {
+        console.error("Error creating solution:", error);
+      },
+    }
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,20 +59,8 @@ const CreateSolutionModal = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(solutionData)
-    const response = await createSolution({ ...solutionData, problemName: problemName });
-    dispatch({ type: "SET_CURRENT_SOLUTIONS", payload: [...currentSolutions, response.data.solution] })
-    setSolutionData({
-      code: "",
-      language: "Java",
-      timeComplexity: "",
-      spaceComplexity: "",
-      youtubeLink: "",
-      methodName: "",
-      note: ""
-    });
-    toggleCreateSolutionModal();
+     e.preventDefault();
+    mutation.mutate({ ...solutionData, problemName });
   };
 
   if (!isOpen) return null;

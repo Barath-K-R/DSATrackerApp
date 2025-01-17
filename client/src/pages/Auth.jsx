@@ -3,6 +3,9 @@ import {login,signUp} from '../api/authApi.js'
 import { useAuthContext } from "../context/authContext/authContext.js";
 import { useNavigate } from "react-router-dom";
 
+import { toast } from "react-toastify"; 
+import "react-toastify/dist/ReactToastify.css";
+
 const Auth = () => {
   const [formData, setFormData] = useState({ identifier: "", email: "", password: "" });
   const [isSignup, setIsSignup] = useState(false);
@@ -23,17 +26,23 @@ const Auth = () => {
     e.preventDefault();
     try {
       if (isSignup) {
-        // Handle Signup
+   
         if (formData.password !== formData.confirmPassword) {
-          alert("Passwords do not match!");
+          console.log('password not match')
+          toast.error("Passwords do not match!",{
+            position: "top-right",
+          });
           return;
         }
+
         const signupData = {
           email: formData.email,
           password: formData.password,
         };
         const response = await signUp(signupData);
-        console.log("Signup successful:", response.data);
+        toast.success("Signup successful! Please log in.",{
+          position: "top-right",
+        });
         setIsSignup(false);
         resetFormData();
       } else {
@@ -43,8 +52,7 @@ const Auth = () => {
           password: formData.password,
         };
         const response = await login(loginData);
-        console.log("Login successful:", response.data.refreshToken);
-        
+       
         // Update context state with user and tokens
         dispatch({ type: 'SET_AUTH_USER', payload: response.data.user });
         dispatch({
@@ -52,10 +60,31 @@ const Auth = () => {
           payload: response.data.accessToken,
         });
         localStorage.setItem('isLoggedIn',true);
+        toast.success("Login successful!");
         navigate("/"); 
       }
     } catch (error) {
-      console.error(error);
+      if (error.response) {
+        const { status, data } = error.response;
+  
+        if (isSignup) {
+          if (status === 400 && data.message === "Username or email already exists") {
+            toast.error("Username or email already exists!");
+          } else {
+            toast.error("Signup failed. Please try again.");
+          }
+        } else {
+          if (status === 404 && data.message === "User not found") {
+            toast.error("User not found!");
+          } else if (status === 401 && data.message === "Invalid password") {
+            toast.error("Invalid password!");
+          } else {
+            toast.error("Login failed. Please try again.");
+          }
+        }
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     }
   };
 

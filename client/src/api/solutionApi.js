@@ -7,6 +7,7 @@ const solutionApi = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 export const setupSolutionApiInterceptor = (accessToken,dispatch) => {

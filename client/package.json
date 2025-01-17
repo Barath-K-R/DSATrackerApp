@@ -11,7 +11,9 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^7.1.1",
     "react-scripts": "5.0.1",
-    "react-syntax-highlighter": "^15.6.1"
+    "react-syntax-highlighter": "^15.6.1",
+    "react-toastify": "^11.0.3",
+    "toastify-js": "^1.12.0"
   },
   "scripts": {
     "start": "react-scripts start",

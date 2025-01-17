@@ -2,24 +2,49 @@ import React, { useEffect } from 'react';
 import { getProblemStats } from '../api/problemApi';
 import { useProblemContext } from '../context/problemContext/problemContext';
 import ProgressBar from './ProgressBar';
+import { useQuery } from 'react-query';
 
 const MenuBar = () => {
     const { stats, dispatch } = useProblemContext();
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            const statsResponse = await getProblemStats();
-
-            dispatch({ type: "SET_PROBLEM_STATS", payload: statsResponse.data });
-        };
-        fetchStats();
-    }, []);
+    const { data: statsResponse, isLoading, isError } = useQuery("problemStats", getProblemStats, {
+        onSuccess: (data) => {
+            dispatch({ type: "SET_PROBLEM_STATS", payload: data.data });
+        },
+    });
 
     // Helper function to calculate percentage
     const calculateCompletionPercentage = (completed, total) => {
         const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
         return percentage;
     };
+
+    if (isLoading) {
+        return (
+            <div className='flex flex-col w-1/6 items-center bg-customGray w-72 h-screen rounded-md text-white'>
+                <div className="title p-2 text-xl font-bold">
+                    <h1>Menu</h1>
+                </div>
+                <div className="flex items-center justify-center w-full h-full">
+                    <span>Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className='flex flex-col w-1/6 items-center bg-customGray w-72 h-screen rounded-md text-white'>
+                <div className="title p-2 text-xl font-bold">
+                    <h1>Menu</h1>
+                </div>
+                <div className="flex items-center justify-center w-full h-full">
+                    <span>Error loading stats</span>
+                </div>
+            </div>
+        );
+    }
+
 
     return (
         <div className='flex flex-col w-1/6 items-center bg-customGray w-72 h-screen rounded-md text-white'>

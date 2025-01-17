@@ -6,13 +6,14 @@ const problemApi = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 export const setupProblemApiInterceptor = (accessToken, dispatch) => {
   console.log(accessToken);
   problemApi.interceptors.request.use(
     (config) => {
-      
+
       if (accessToken) {
         config.headers['Authorization'] = `Bearer ${accessToken}`;
       }
@@ -56,10 +57,10 @@ export const getAllProblems = () => problemApi.get('/');
 export const getAllProblemsTypes = () => problemApi.get(`/type`);
 export const getProblemStats = () => problemApi.get('/stats');
 
-export const updateIsFavourite = (problemId) => problemApi.patch(`/${problemId}/favourite`);
-export const updateIsCompleted = (problemId) => problemApi.patch(`/${problemId}/completed`);
+export const updateIsFavourite = (problem) => problemApi.patch(`/${problem._id}/favourite`);
+export const updateIsCompleted = (problemData) => problemApi.patch(`/${problemData.problem._id}/completed`);
 
-export const moveProblem = (problemId, newType) => problemApi.patch('/move', { problemId, newType });
+export const moveProblem = (moveProblemData) => problemApi.patch('/move',moveProblemData);
 export const deleteProblem = (problemId) => problemApi.delete(`/${problemId}`);
 
 export default problemApi;

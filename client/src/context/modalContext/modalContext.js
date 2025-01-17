@@ -10,6 +10,7 @@ export const ModalProvider = ({ children }) => {
   const toggleCreateProblemTypeModal = () => dispatch({ type: "TOGGLE_CREATE_PROBLEM_TYPE_MODAL" });
   const toggleCreateSolutionModal = () => dispatch({ type: "TOGGLE_CREATE_SOLUTION_MODAL" });
   const toggleTypeSelectionModal = () => dispatch({ type: "TOGGLE_TYPE_SELECTION_MODAL" }); 
+  const toggleProfileModal=()=>dispatch({type:"TOGGLE_PROFILE_MODAL"});
   const closeAllModals = () => dispatch({ type: "CLOSE_ALL_MODALS" });
 
   return (
@@ -20,6 +21,7 @@ export const ModalProvider = ({ children }) => {
         toggleCreateProblemTypeModal,
         toggleCreateSolutionModal,
         toggleTypeSelectionModal,
+        toggleProfileModal,
         closeAllModals,
       }}
     >

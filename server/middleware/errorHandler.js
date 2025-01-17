@@ -2,6 +2,7 @@ import CustomError from "../utils/CustomError.js";
 
 const devErrors = (res, error) => {
     console.log('development error');
+    console.log(error);
     res.status(error.statusCode).json({
         status: error.statusCode,
         message: error.message,
@@ -18,10 +19,10 @@ const castErrorHandler = (err) => {
 
 const duplicateKeyErrorHandler = (err) => {
     console.log('duplicate error');
- const name = err.keyValue.name;
- const msg = `There is already a movie with name ${name}. Please use another name!`;
- 
- return new CustomError(msg, 400);
+    const name = err.keyValue.name;
+    const msg = `There is already a movie with name ${name}. Please use another name!`;
+
+    return new CustomError(msg, 400);
 }
 
 const validationErrorHandler = (err) => {
@@ -36,12 +37,13 @@ const validationErrorHandler = (err) => {
 
 const prodErrors = (res, error) => {
     console.log('displaying production errors');
-    if(error.isOperational){
+    console.log(error);
+    if (error.isOperational) {
         res.status(error.statusCode).json({
             status: error.statusCode,
             message: error.message
         });
-    }else {
+    } else {
         res.status(500).json({
             status: 'error',
             message: 'Something went wrong! Please try again later.'
@@ -49,17 +51,17 @@ const prodErrors = (res, error) => {
     }
 }
 
-export const globalErrorHandler=(error, req, res, next) => {
-  error.statusCode = error.statusCode || 500;
-  error.status = error.status || 'error';
+export const globalErrorHandler = (error, req, res, next) => {
+    error.statusCode = error.statusCode || 500;
+    error.status = error.status || 'error';
 
-  if(process.env.NODE_ENV === 'development'){
-      devErrors(res, error);
-  } else if(process.env.NODE_ENV === 'production'){
-      if(error.name === 'CastError') error = castErrorHandler(error);
-      if(error.code === 11000) error = duplicateKeyErrorHandler(error);
-      if(error.name === 'ValidationError') error = validationErrorHandler(error);
+    if (process.env.NODE_ENV === 'development') {
+        devErrors(res, error);
+    } else if (process.env.NODE_ENV === 'production') {
+        if (error.name === 'CastError') error = castErrorHandler(error);
+        if (error.code === 11000) error = duplicateKeyErrorHandler(error);
+        if (error.name === 'ValidationError') error = validationErrorHandler(error);
 
-      prodErrors(res, error);
-  }
-  }
+        prodErrors(res, error);
+    }
+}

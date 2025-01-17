@@ -1,18 +1,19 @@
 import express from 'express'
 import * as problemController from '../controllers/problemController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const problemRoutes=express.Router();
 
-problemRoutes.post('/',problemController.createProblem)
-problemRoutes.get('/',problemController.getAllProblems)
-problemRoutes.delete('/:id', problemController.deleteProblem);
-problemRoutes.post('/type', problemController.createProblemType);
-problemRoutes.get('/type', problemController.getAllProblemTypes);
+problemRoutes.post('/',authMiddleware,problemController.createProblem)
+problemRoutes.get('/',authMiddleware,problemController.getAllProblems)
+problemRoutes.delete('/:id', authMiddleware,problemController.deleteProblem);
+problemRoutes.post('/type',authMiddleware, problemController.createProblemType);
+problemRoutes.get('/type',authMiddleware, problemController.getAllProblemTypes);
 
-problemRoutes.get('/stats',problemController.getProblemStats)
-problemRoutes.patch('/move', problemController.moveProblem);
-problemRoutes.patch('/:id/favourite', problemController.updateIsFavourite);
-problemRoutes.patch('/:id/completed', problemController.updateIsCompleted);
+problemRoutes.get('/stats',authMiddleware,problemController.getProblemStats)
+problemRoutes.patch('/move',authMiddleware, problemController.moveProblem);
+problemRoutes.patch('/:id/favourite',authMiddleware, problemController.updateIsFavourite);
+problemRoutes.patch('/:id/completed', authMiddleware,problemController.updateIsCompleted);
 
 
 

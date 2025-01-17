@@ -1,23 +1,22 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET; 
 
 export const authMiddleware = (req, res, next) => {
-    console.log('verifying token');
+    console.log('verifying token',process.env.JWT_ACCESS_SECRET);
   const authHeader = req.headers.authorization;
   console.log(authHeader);
   if (!authHeader) {
-    return res.status(401).json({ message: 'Authorization header missing' });
+    throw new CustomError('Authorization header missing', 401);
   }
 
   const token = authHeader.split(' ')[1]; 
 
   if (!token) {
-    return res.status(401).json({ message: 'Bearer token missing' });
+    throw new CustomError('Bearer token missing', 401);
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_ACCESS_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
 
     req.user = {
@@ -28,6 +27,6 @@ export const authMiddleware = (req, res, next) => {
     next(); 
   } catch (error) {
     console.error('Token verification failed:', error);
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    throw new CustomError('Invalid or expired token', 401);
   }
 };

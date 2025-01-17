@@ -1,5 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
+import { ToastContainer } from 'react-toastify';
+
 import Home from './pages/Home.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
@@ -15,45 +17,41 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import Auth from './pages/Auth.jsx';
 
 const queryClient = new QueryClient();
-
 function App() {
     const { authUser, dispatch, token } = useAuthContext();
-    const [isTokenExists, setIsTokenExists] = useState(false);
+    
 
     useEffect(() => {
         const initializeAuth = async () => {
             if (token) {
                 setupSolutionApiInterceptor(token, dispatch);
                 setupProblemApiInterceptor(token, dispatch);
-                setIsTokenExists(true);
+               
             } else {
                 try {
-                    const isLoggedin = localStorage.getItem('isLoggedIn');
-                    if (isLoggedin) {
-                        const { accessToken, user } = await refreshAccessToken();
-                        dispatch({ type: "SET_TOKEN", payload: accessToken });
-                        dispatch({ type: "SET_AUTH_USER", payload: user });
-                        localStorage.setItem('isLoggedIn', 'true');
-                    }
+                    console.log('REFRESHING ACCESSTOKEN');
+                    const response = await refreshAccessToken();
+                    const {accessToken,user}=response.data;
+                    dispatch({ type: "SET_TOKEN", payload: accessToken });
+                    dispatch({ type: "SET_AUTH_USER", payload: user });
+                     
                 }
                 catch (error) {
                     if (error.response && error.response.status === 401) {
                         console.warn("No valid refresh token found. User needs to log in.");
-
-                    } else { console.error("Error during token refresh:", error); }
+                    } else {
+                        console.error("Error during token refresh:", error);
+                    }
                 }
             }
         };
         initializeAuth();
     }, [token, dispatch]);
 
-    if (!isTokenExists && authUser) {
-        return <div>Loading...</div>;
-    }
 
     return (
         <QueryClientProvider client={queryClient}>
-            <div className="bg-customDark w-full h-screen">
+            <div className="bg-customDark w-full h-full">
                 <ModalProvider>
                     <ProblemProvider>
                         {authUser && <Header />}
@@ -65,10 +63,11 @@ function App() {
                             </Routes>
                         </BrowserRouter>
                         {authUser && <Footer />}
+                        <ToastContainer />
                     </ProblemProvider>
                 </ModalProvider>
             </div>
-            <ReactQueryDevtools initialIsOpen={false} />
+            <ReactQueryDevtools initialIsOpen={true} />
         </QueryClientProvider>
     );
 }

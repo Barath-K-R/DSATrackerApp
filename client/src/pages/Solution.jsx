@@ -4,8 +4,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { AiFillDelete } from "react-icons/ai";
 import axios from 'axios';
+import { useQuery, useQueryClient,useMutation } from 'react-query';
 
-import { getAllSolutionByProblemName,deleteSolution} from '../api/solutionApi.js';
+import { getAllSolutionByProblemName, deleteSolution } from '../api/solutionApi.js';
 
 import { useModalContext } from '../context/modalContext/modalContext.js';
 import CreateSolutionModal from '../components/CreateSolutionModal.jsx';
@@ -13,37 +14,54 @@ import { useProblemContext } from '../context/problemContext/problemContext.js';
 
 const Solution = () => {
     const { problemName } = useParams();
-    const [loading, setLoading] = useState(true);
+
 
     const { currentSolutions, dispatch } = useProblemContext();
     const { toggleCreateSolutionModal, isCreateSolutionModalOpen } = useModalContext();
 
-    useEffect(() => {
-        const fetchSolutions = async () => {
-            try {
-                const response = await getAllSolutionByProblemName(problemName);
-                
-                dispatch({ type: "SET_CURRENT_SOLUTIONS", payload: response.data.solutions })
-                setLoading(false);
-            } catch (error) {
+    const queryClient = useQueryClient();
+
+    const { data: solutions, isLoading, isError } = useQuery(
+        ['solutions', problemName],
+        () => getAllSolutionByProblemName(problemName),
+        {
+            onSuccess: (data) => {
+                console.log(data.data.solutions)
+                dispatch({ type: 'SET_CURRENT_SOLUTIONS', payload: data.data.solutions });
+            },
+            onError: (error) => {
                 console.error('Error fetching solutions:', error);
-                setLoading(false);
-            }
-        };
-
-        fetchSolutions();
-    }, [problemName]);
-
-    const handleDelete=async(selectedSolution)=>{
-        try {
-            const deleteSolutionResponse=await deleteSolution(selectedSolution._id);
-            dispatch({type:"DELETE_SOLUTION",payload:selectedSolution._id})
-        } catch (error) {
-           console.log(error) 
+            },
         }
-    }
-    if (loading) {
+    );
+
+
+    const deleteSolutionMutation = useMutation(
+        (solutionId) => deleteSolution(solutionId),
+        {
+            onSuccess: (data, solutionId) => {
+
+                queryClient.invalidateQueries(['solutions', problemName]);
+
+
+                dispatch({ type: 'DELETE_SOLUTION', payload: solutionId });
+            },
+            onError: (error) => {
+                console.error('Error deleting solution:', error);
+            },
+        }
+    );
+
+    const handleDelete = (selectedSolution) => {
+        deleteSolutionMutation.mutate(selectedSolution._id); 
+      };
+
+    if (isLoading) {
         return <div className="text-white">Loading solutions...</div>;
+    }
+
+    if (isError) {
+        return <div className="text-white">Error fetching solutions.</div>;
     }
 
     return (
@@ -74,7 +92,7 @@ const Solution = () => {
                                     <h2 className="text-3xl font-bold">
                                         {index + 1}. {solution.methodName}
                                     </h2>
-                                    <AiFillDelete size={28} className='bg-customDark p-1 hover:text-customDark hover:bg-white rounded-md cursor-pointer' onClick={()=>handleDelete(solution)}/>
+                                    <AiFillDelete size={28} className='bg-customDark p-1 hover:text-customDark hover:bg-white rounded-md cursor-pointer' onClick={() => handleDelete(solution)} />
                                 </div>
                                 {/* Code Snippet */}
                                 <div className="code-snippet w-full">

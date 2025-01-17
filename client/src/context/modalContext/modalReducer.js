@@ -3,6 +3,7 @@ export const initialState = {
   isCreateProblemTypeModalOpen: false,
   isCreateSolutionModalOpen: false,
   isTypeSelectionModalOpen: false,
+  isProfileModalOpen:false
 };
 
 // Reducer function to manage state updates
@@ -16,6 +17,8 @@ export const modalReducer = (state, action) => {
       return { ...state, isCreateSolutionModalOpen: !state.isCreateSolutionModalOpen };
     case "TOGGLE_TYPE_SELECTION_MODAL": 
       return { ...state, isTypeSelectionModalOpen: !state.isTypeSelectionModalOpen };
+      case "TOGGLE_PROFILE_MODAL":
+        return {...state, isProfileModalOpen: !state.isProfileModalOpen};
     case "CLOSE_ALL_MODALS":
       return { ...initialState };
     default:

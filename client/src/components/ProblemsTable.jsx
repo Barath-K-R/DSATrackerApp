@@ -111,7 +111,7 @@ const ProblemsTable = ({ type, handleStarClick, handleStatusClick }) => {
                                     className="settings flex justify-center items-center w-6 h-6 hover:bg-customDark rounded-md cursor-pointer"
                                     onClick={() => {
                                         toggleTypeSelectionModal();
-                                        console.log("Setting problem to move:", problem);
+                                        console.log('problemtomove=',problem)
                                         dispatch({ type: 'SET_PROBLEM_TO_MOVE', payload: problem });
                                     }}
                                 >

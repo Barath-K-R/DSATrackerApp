@@ -46,11 +46,11 @@ export const problemReducer = (state, action) => {
       };
 
       case "MOVE_PROBLEM":
-        console.log(state.groupedProblems);
+    
         const { moveProblemId, newType, oldType } = action.payload;
   
         const groupedCopy = JSON.parse(JSON.stringify(state.groupedProblems));
-        console.log(moveProblemId + " " + newType + " " + oldType);
+      
         groupedCopy[oldType] = groupedCopy[oldType].filter(
           (problem) => problem._id !== moveProblemId
         );
@@ -69,9 +69,6 @@ export const problemReducer = (state, action) => {
       
           groupedCopy[newType].push(problemCopy);
         }
-      
-        console.log("copy");
-        console.log(groupedCopy);
       
         return {
           ...state,

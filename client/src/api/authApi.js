@@ -6,13 +6,23 @@ const authApi = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
-export const login=(loginFormData)=>authApi.post('/login',loginFormData);
-export const signUp=(signUpData)=>authApi.post('/signup',signUpData)
-export const logout=()=>authApi.post('/logout')
-export const refreshAccessToken = () => {
-  return authApi.post('/refresh_token', null, {
-    withCredentials: true,  
-  });
+export const setupAuthInterceptor = (token) => {
+  authApi.interceptors.request.use(
+    (config) => {
+      if (config.url === '/logout' && token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 };
+
+export const login=(loginFormData)=>authApi.post('/login',loginFormData);
+export const signUp=(signUpData)=>authApi.post('/signup',signUpData);
+export const logout=()=>authApi.post('/logout');
+export const refreshAccessToken = () =>authApi.post('/refresh_token');
+

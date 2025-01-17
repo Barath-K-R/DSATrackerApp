@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllProblemsTypes, createProblem, createProblemType } from "../api/problemApi";
 import { useProblemContext } from "../context/problemContext/problemContext";
 import { useModalContext } from "../context/modalContext/modalContext";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 
 const CreateProblemModal = ({ isOpen, onClose, onSubmit }) => {
   const [problemData, setProblemData] = useState({
@@ -16,18 +17,39 @@ const CreateProblemModal = ({ isOpen, onClose, onSubmit }) => {
   const { groupedProblems, problemTypes, dispatch } = useProblemContext();
   const { toggleCreateProblemModal } = useModalContext();
 
-  useEffect(() => {
-    const fetchProblemTypes = async () => {
-      try {
-        const response = await getAllProblemsTypes();
-        dispatch({ type: "SET_PROBLEM_TYPES", payload: response.data.problemTypes });
-      } catch (error) {
-        console.error("Error fetching problem types:", error);
-      }
-    };
+  const queryClient = useQueryClient();
 
-    fetchProblemTypes();
-  }, []);
+
+  const createProblemTypeMutation = useMutation(createProblemType, {
+    onSuccess: (newTypeResponse) => {
+      console.log(newTypeResponse)
+      const newProblemType = newTypeResponse.data.problemType;
+      
+      dispatch({ type: "SET_PROBLEM_TYPES", payload: [...problemTypes, newProblemType] });
+    },
+    onError: (error) => {
+      console.error("Error creating new problem type:", error);
+    },
+  });
+
+  const createProblemMutation = useMutation(createProblem, {
+    onSuccess: (newProblem) => {
+      console.log('newproblem==',newProblem)
+      const problemType = problemTypes?.find((p) => p._id === newProblem.data.problem.type)?.name || newType.trim();
+
+      const updatedGroupedProblems = {
+        ...groupedProblems,
+        [problemType]: [...(groupedProblems[problemType] || []), newProblem.data.problem],
+      };
+
+      dispatch({ type: "SET_GROUPED_PROBLEMS", payload: updatedGroupedProblems });
+      dispatch({ type: "UPDATE_STATS_TOTAL_COUNT", payload: { difficulty: problemData.difficulty, operation: 1 } });
+      dispatch({ type: "SET_ACTIVE_TYPE", payload: problemType });
+    },
+    onError: (error) => {
+      console.error("Error creating new problem:", error);
+    },
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,37 +71,23 @@ const CreateProblemModal = ({ isOpen, onClose, onSubmit }) => {
 
     if (problemData.type === "other" && newType.trim()) {
       try {
-        const newTypeResponse = await createProblemType({ name: newType.trim() });
+        const newTypeResponse = await createProblemTypeMutation.mutateAsync({ name: newType.trim() });
         selectedTypeId = newTypeResponse.data.problemType._id;
-
-        dispatch({ type: "SET_PROBLEM_TYPES", payload: [...problemTypes, newTypeResponse.data.problemType] });
       } catch (error) {
         console.error("Error creating new problem type:", error);
         return;
       }
     }
 
-    const updatedProblemData = { ...problemData, type: selectedTypeId };
-
     try {
-      const createProblemResponse = await createProblem(updatedProblemData);
-      const newProblem = createProblemResponse.data.problem;
-      const problemType = problemTypes.find((p) => p._id === newProblem.type)?.name || newType.trim();
-
-      const updatedGroupedProblems = {
-        ...groupedProblems,
-        [problemType]: [...(groupedProblems[problemType] || []), newProblem],
-      };
-
-      dispatch({ type: "SET_GROUPED_PROBLEMS", payload: updatedGroupedProblems });
-      dispatch({ type: "UPDATE_STATS_TOTAL_COUNT", payload: { difficulty: problemData.difficulty, operation: 1 } });
-      dispatch({ type: "SET_ACTIVE_TYPE", payload: problemType });
+      await createProblemMutation.mutateAsync({ ...problemData, type: selectedTypeId });
       setProblemData({ name: "", difficulty: "Easy", link: "", type: "" });
       setNewType("");
       onClose();
     } catch (error) {
       console.error("Error creating problem:", error);
     }
+
   };
 
   if (!isOpen) return null;
