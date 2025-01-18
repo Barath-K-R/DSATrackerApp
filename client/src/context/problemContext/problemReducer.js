@@ -115,6 +115,55 @@ export const problemReducer = (state, action) => {
           },
         },
       }
+
+      case "SORT_GROUPED_PROBLEMS_BY_NAME": {
+        const { type, order } = action.payload;
+        console.log(action.payload);
+      
+        if (!state.groupedProblems[type]) return state;
+  
+       
+        const sortedProblems = [...state.groupedProblems[type]].sort((a, b) => {
+          const nameA = a.name.toLowerCase();
+          const nameB = b.name.toLowerCase();
+          if (nameA < nameB) return order === 1 ? -1 : 1;
+          if (nameA > nameB) return order === 1 ? 1 : -1;
+          return 0;
+        });
+  
+        return {
+          ...state,
+          groupedProblems: {
+            ...state.groupedProblems,
+            [type]: sortedProblems,
+          },
+        };
+      }
+      case "SORT_PROBLEMS_BY_DIFFICULTY": {
+        const { type, order } = action.payload;
+  
+        
+        if (!state.groupedProblems[type]) return state;
+  
+        
+        const difficultyOrder = ["easy", "medium", "hard"];
+        if (order === -1) difficultyOrder.reverse();
+  
+        const sortedProblems = [...state.groupedProblems[type]].sort((a, b) => {
+          const difficultyA = a.difficulty.toLowerCase();
+          const difficultyB = b.difficulty.toLowerCase();
+  
+          return difficultyOrder.indexOf(difficultyA) - difficultyOrder.indexOf(difficultyB);
+        });
+
+        return {
+          ...state,
+          groupedProblems: {
+            ...state.groupedProblems,
+            [type]: sortedProblems,
+          },
+        };
+      }
     default:
       return state;
   }

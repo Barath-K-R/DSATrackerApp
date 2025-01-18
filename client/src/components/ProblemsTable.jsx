@@ -2,18 +2,34 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
 import { AiFillStar } from "react-icons/ai";
 import { GoCheck } from "react-icons/go";
-import { BsThreeDotsVertical } from "react-icons/bs";
 import { AiFillMinusCircle } from "react-icons/ai";
-import { BsArrowUpRight } from "react-icons/bs";
-import { BsCameraVideoFill } from "react-icons/bs";
+import { BsArrowUpRight, BsCameraVideoFill } from "react-icons/bs";
+import { BiSolidUpArrow, BiSolidDownArrow } from "react-icons/bi";
+import { FaSort } from "react-icons/fa";
 
 import { deleteProblem } from '../api/problemApi.js';
 import { useModalContext } from '../context/modalContext/modalContext.js';
 import { useProblemContext } from '../context/problemContext/problemContext.js';
 
 const ProblemsTable = ({ type, handleStarClick, handleStatusClick }) => {
+    const [problemSortOrder, setproblemSortOrder] = useState(0);
+    const [difficultySortOrder, setdifficultySortOrder] = useState(0);
+
     const { groupedProblems, activeType, dispatch } = useProblemContext();
     const { toggleTypeSelectionModal } = useModalContext();
+
+    const handleProblemSort = () => {
+        setproblemSortOrder(prev => {
+            return prev === 0 ? 1 : prev === 1 ? -1 : 0;
+        })
+        dispatch({type:"SORT_GROUPED_PROBLEMS_BY_NAME",payload:{type:type.name,order:problemSortOrder}})
+    }
+    const handleDifficultySort = () => {
+        setdifficultySortOrder(prev => {
+            return prev === 0 ? 1 : prev === 1 ? -1 : 0;
+        })
+        dispatch({type:"SORT_PROBLEMS_BY_DIFFICULTY",payload:{type:type.name,order:difficultySortOrder}})
+    }
 
     const handleRemoveProblem = async (problem) => {
         await deleteProblem(problem._id);
@@ -26,23 +42,37 @@ const ProblemsTable = ({ type, handleStarClick, handleStatusClick }) => {
     };
 
     return (
-        <div className={`table-div w-full overflow-hidden transform transition-all duration-500 ease-in-out 
-        ${activeType === type.name ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'} z-10`}>
+        <div className={`table-div w-full overflow-hidden transform transition-all duration-500 ease-in-out rounded-lg z-10`}>
             <table className="problem-table w-full text-white bg-customGray rounded-lg text-left">
                 <thead>
-                    <tr className="border h-12 border-gray-200">
+                    <tr className="h-12">
                         <th className="px-4 py-2 text-center">Status</th>
                         <th className="px-4 py-2 text-center">Star</th>
-                        <th className="px-4 py-2 text-start">Problem Name</th>
-                        <th className="px-4 py-2 text-center">Difficulty</th>
+                        <th className="px-4 py-2 text-start">
+                            <div className={`problem-name flex gap-2 cursor-pointer transition-colors duration-500 hover:text-purple-700 
+                                ${problemSortOrder === 0 ? 'items-center' : problemSortOrder === 1 ? 'items-start' : 'items-end'}`} onClick={handleProblemSort}>
+                                <span>Problem Name</span>
+                                {problemSortOrder === 0 && <FaSort />}
+                                {problemSortOrder === 1 && <BiSolidUpArrow size={11} />}
+                                {problemSortOrder === -1 && <BiSolidDownArrow size={11} />}
+                            </div>
+                        </th>
+                        <th className="px-4 py-2 text-center">
+                            <div className={`problem-name flex justify-center gap-2 ${difficultySortOrder === 0 ? 'items-center' : difficultySortOrder === 1 ? 'items-start text-purple-700' : 'items-end text-purple-700'} cursor-pointer transition-colors duration-500 hover:text-purple-700`} onClick={handleDifficultySort}>
+                                <span>Difficulty</span>
+                                {difficultySortOrder === 0 && <FaSort size={11} />}
+                                {difficultySortOrder === 1 && <BiSolidUpArrow size={11} />}
+                                {difficultySortOrder === -1 && <BiSolidDownArrow size={11} />}
+                            </div>
+                        </th>
                         <th className="px-4 py-2 text-center">Solution</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {groupedProblems[activeType] && groupedProblems[activeType].map((problem) => (
+                    {groupedProblems[type.name] && groupedProblems[type.name].map((problem) => (
                         <tr
                             key={problem._id}
-                            className={`table-row border h-12 ${problem.isCompleted ? 'bg-[#214b52]' : 'bg-customGray'} border-gray-200`}
+                            className={`table-row border-t border-b border-gray-500 h-12 ${problem.isCompleted ? 'bg-[#214b52]' : 'bg-customGray'}`}
                         >
                             <td className="status">
                                 <div className="status-container flex justify-center items-center">
@@ -88,14 +118,18 @@ const ProblemsTable = ({ type, handleStarClick, handleStatusClick }) => {
                                             ? "text-medium"
                                             : "text-hard"
                                         }`}>{problem.difficulty}</span>
+
                                 </div>
                             </td>
                             <td className="cursor-pointer">
-                                <div className="solution flex justify-center">
-                                    <Link to={`/solution/${problem.name}`} className="solution-link">
-                                        <BsCameraVideoFill />
-                                    </Link>
+                                <div className="outer w-full flex justify-center">
+                                    <div className="solution w-2/6 h-8 flex items-center justify-center rounded-2xl hover:bg-customDark">
+                                        <Link to={`/solution/${problem.name}`} className="solution-link">
+                                            <BsCameraVideoFill color='white' />
+                                        </Link>
+                                    </div>
                                 </div>
+
 
                             </td>
                             <td>
@@ -111,7 +145,7 @@ const ProblemsTable = ({ type, handleStarClick, handleStatusClick }) => {
                                     className="settings flex justify-center items-center w-6 h-6 hover:bg-customDark rounded-md cursor-pointer"
                                     onClick={() => {
                                         toggleTypeSelectionModal();
-                                        console.log('problemtomove=',problem)
+                                        console.log('problemtomove=', problem)
                                         dispatch({ type: 'SET_PROBLEM_TO_MOVE', payload: problem });
                                     }}
                                 >

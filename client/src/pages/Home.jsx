@@ -152,7 +152,7 @@ const Home = () => {
             <div
               key={type._id}
               onClick={() => handleTypeClick(type.name)}
-              className={`types-list cursor-pointer flex items-center w-full h-14 p-3 rounded-lg  ${groupedView ? 'bg-customGray border justify-center' : 'bg-customDark'} hover:bg-customDark ${activeType === type.name ? 'bg-customDark' : ''} z-10`}
+              className={`types-list cursor-pointer flex items-center w-full h-14 p-3 rounded-lg  ${groupedView && type.name===activeType?'bg-customDark border':groupedView ? 'bg-customGray border justify-center' : 'bg-customDark'} hover:bg-customDark z-10`}
             >
               {groupedView && <div className="groupedview-header flex justify-between items-center w-full">
                 <h3 className="text-xl">{type.name}</h3>
@@ -176,7 +176,10 @@ const Home = () => {
               </div>}
             </div>
 
-            <ProblemsTable type={type} handleStarClick={handleStarClick} handleStatusClick={handleStatusClick} />
+            {(!groupedView || activeType === type.name) && (
+              <ProblemsTable type={type} handleStarClick={handleStarClick} handleStatusClick={handleStatusClick} />
+            )}
+
           </>
         ))}
       </div>
