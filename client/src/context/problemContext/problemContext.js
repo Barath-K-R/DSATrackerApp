@@ -4,10 +4,13 @@ import { problemReducer } from './problemReducer.js';
 const ProblemContext = createContext();
 const initialState = {
     groupedProblems: {},
+    backupGroupedProblems: {}, 
     currentSolutions: [],
     problemTypes: [],
     activeType: null,
     problemToMove: null,
+    randomProblem: null,
+    groupedView:true,
     stats:{}
   };
   

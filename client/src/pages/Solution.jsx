@@ -4,7 +4,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { AiFillDelete } from "react-icons/ai";
 import axios from 'axios';
-import { useQuery, useQueryClient,useMutation } from 'react-query';
+import { useQuery, useQueryClient, useMutation } from 'react-query';
 
 import { getAllSolutionByProblemName, deleteSolution } from '../api/solutionApi.js';
 
@@ -32,6 +32,9 @@ const Solution = () => {
             onError: (error) => {
                 console.error('Error fetching solutions:', error);
             },
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: true,
+            refetchOnMount: true,
         }
     );
 
@@ -43,7 +46,6 @@ const Solution = () => {
 
                 queryClient.invalidateQueries(['solutions', problemName]);
 
-
                 dispatch({ type: 'DELETE_SOLUTION', payload: solutionId });
             },
             onError: (error) => {
@@ -53,8 +55,8 @@ const Solution = () => {
     );
 
     const handleDelete = (selectedSolution) => {
-        deleteSolutionMutation.mutate(selectedSolution._id); 
-      };
+        deleteSolutionMutation.mutate(selectedSolution._id);
+    };
 
     if (isLoading) {
         return <div className="text-white">Loading solutions...</div>;

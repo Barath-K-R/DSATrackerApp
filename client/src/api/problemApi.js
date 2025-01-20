@@ -53,9 +53,9 @@ export const setupProblemApiInterceptor = (accessToken, dispatch) => {
 export const createProblem = (problemData) => problemApi.post('/', problemData);
 export const createProblemType = (problemTypeData) => problemApi.post('/type', problemTypeData);
 
-export const getAllProblems = () => problemApi.get('/');
-export const getAllProblemsTypes = () => problemApi.get(`/type`);
-export const getProblemStats = () => problemApi.get('/stats');
+export const getAllProblems = (userId) => problemApi.get(`/user/${userId}`);
+export const getAllProblemsTypes = (userId) => problemApi.get(`/user/${userId}/type`);
+export const getProblemStats = (userId) => problemApi.get(`/user/${userId}/stats`);
 
 export const updateIsFavourite = (problem) => problemApi.patch(`/${problem._id}/favourite`);
 export const updateIsCompleted = (problemData) => problemApi.patch(`/${problemData.problem._id}/completed`);

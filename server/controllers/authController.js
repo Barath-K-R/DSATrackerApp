@@ -12,7 +12,7 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 export const signUp = async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email);
+
   const username = email.split('@')[0];
 
   try {
@@ -143,13 +143,11 @@ export const logout = async (req, res, next) => {
 
 
 export const refreshAccessToken = async (req, res) => {
-  console.log(req.cookies);
-  console.log('REFRESHING ACCESS TOKEN');
-  console.log(req.cookies);
+ 
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
-    console.log('Refresh token not provided');
+    
     return res.status(401).json({ message: 'Refresh token not provided' });
   }
 

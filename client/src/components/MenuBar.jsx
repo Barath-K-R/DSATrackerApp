@@ -3,12 +3,15 @@ import { getProblemStats } from '../api/problemApi';
 import { useProblemContext } from '../context/problemContext/problemContext';
 import ProgressBar from './ProgressBar';
 import { useQuery } from 'react-query';
+import { useAuthContext } from '../context/authContext/authContext';
 
 const MenuBar = () => {
     const { stats, dispatch } = useProblemContext();
+    const {authUser}=useAuthContext();
 
-    const { data: statsResponse, isLoading, isError } = useQuery("problemStats", getProblemStats, {
+    const { data: statsResponse, isLoading, isError } = useQuery(["problemStats",authUser], ()=>getProblemStats(authUser._id), {
         onSuccess: (data) => {
+            console.log('fetching stats successfull')
             dispatch({ type: "SET_PROBLEM_STATS", payload: data.data });
         },
     });
@@ -34,7 +37,7 @@ const MenuBar = () => {
 
     if (isError) {
         return (
-            <div className='flex flex-col w-1/6 items-center bg-customGray w-72 h-screen rounded-md text-white'>
+            <div className='flex flex-col items-center bg-customGray w-72 h-screen rounded-md text-white'>
                 <div className="title p-2 text-xl font-bold">
                     <h1>Menu</h1>
                 </div>
@@ -47,7 +50,7 @@ const MenuBar = () => {
 
 
     return (
-        <div className='flex flex-col w-1/6 items-center bg-customGray w-72 h-screen rounded-md text-white'>
+        <div className='sticky flex flex-col w-72 items-center bg-customGray  h-screen  rounded-md text-white'>
             <div className="title p-2 text-xl font-bold">
                 <h1>Menu</h1>
             </div>
@@ -69,6 +72,7 @@ const MenuBar = () => {
                         <ProgressBar
                             color={"easy"}
                             width={calculateCompletionPercentage(stats?.easy?.completed, stats?.easy?.total)}
+                            totalwidth={'11/12'}
                         />
                     </div>
 
@@ -85,6 +89,7 @@ const MenuBar = () => {
                         <ProgressBar
                             color="medium"
                             width={calculateCompletionPercentage(stats?.medium?.completed, stats?.medium?.total)}
+                            totalwidth={'11/12'}
                         />
                     </div>
 
@@ -101,6 +106,7 @@ const MenuBar = () => {
                         <ProgressBar
                             color="hard"
                             width={calculateCompletionPercentage(stats?.hard?.completed, stats?.hard?.total)}
+                            totalwidth={'11/12'}
                         />
                     </div>
                 </div>

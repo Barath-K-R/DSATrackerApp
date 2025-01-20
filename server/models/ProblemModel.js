@@ -30,6 +30,11 @@ const problemSchema = new mongoose.Schema({
     ref: ProblemType,
     required: true,
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', 
+    required: true,
+  },
 }, {
   timestamps: true,
 });

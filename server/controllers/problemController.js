@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Problem from '../models/ProblemModel.js';
 import ProblemType from '../models/ProblemType.js';
 import Solution from '../models/SolutionModel.js';
@@ -5,9 +6,9 @@ import asyncErrorHandler from '../utils/asyncErrorHandler.js';
 import CustomError from '../utils/CustomError.js';
 
 export const createProblem = asyncErrorHandler(async (req, res) => {
-    const { name, type, difficulty, link } = req.body;
+    const { name, type, difficulty, link, userId } = req.body;
 
-    const existingProblem = await Problem.findOne({ name });
+    const existingProblem = await Problem.findOne({ name, user: userId });
     if (existingProblem) {
         throw new CustomError('Problem already exists', 400);
     }
@@ -16,7 +17,8 @@ export const createProblem = asyncErrorHandler(async (req, res) => {
         name,
         type,
         difficulty,
-        link
+        link,
+        user: userId
     });
 
     await newProblem.save();
@@ -28,9 +30,9 @@ export const createProblem = asyncErrorHandler(async (req, res) => {
 });
 
 export const createProblemType = asyncErrorHandler(async (req, res) => {
-    const { name, description } = req.body;
+    const { name, description, userId } = req.body;
 
-    const existingProblemType = await ProblemType.findOne({ name });
+    const existingProblemType = await ProblemType.findOne({ name, user: userId });
     if (existingProblemType) {
         throw new CustomError('Problem type already exists', 400);
     }
@@ -38,6 +40,7 @@ export const createProblemType = asyncErrorHandler(async (req, res) => {
     const problemType = new ProblemType({
         name,
         description,
+        user: userId
     });
 
     await problemType.save();
@@ -46,12 +49,14 @@ export const createProblemType = asyncErrorHandler(async (req, res) => {
 });
 
 export const getAllProblemTypes = asyncErrorHandler(async (req, res) => {
-    const problemTypes = await ProblemType.find();
+    const { userId } = req.params
+    const problemTypes = await ProblemType.find({ user: userId });
     res.status(200).json({ problemTypes });
 });
 
 export const getAllProblems = asyncErrorHandler(async (req, res) => {
-    const problems = await Problem.find().populate('type', 'name description');
+    const { userId } = req.params
+    const problems = await Problem.find({ user: userId }).populate('type', 'name description');
     res.status(200).json({ problems });
 });
 
@@ -101,7 +106,7 @@ export const deleteProblem = asyncErrorHandler(async (req, res) => {
 });
 
 export const moveProblem = asyncErrorHandler(async (req, res) => {
-    
+
     const { problemId, newType } = req.body;
 
     if (!problemId || !newType) {
@@ -118,17 +123,27 @@ export const moveProblem = asyncErrorHandler(async (req, res) => {
         throw new CustomError('Target problem type does not exist', 404);
     }
 
-    
-    
+
+
     problem.type = problemTypeExists._id;
     await problem.save();
 
-    
+
     res.status(200).json({ message: 'Problem moved successfully', problem, movedProblemType: newType });
 });
 
 export const getProblemStats = asyncErrorHandler(async (req, res) => {
+    const { userId } = req.params
+    console.log(userId);
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+         throw new CustomError('Invalid userId',400)
+    }
+    
     const stats = await Problem.aggregate([
+        {
+            $match: { user: new mongoose.Types.ObjectId(userId) },
+        },
         {
             $group: {
                 _id: "$difficulty",
@@ -145,11 +160,12 @@ export const getProblemStats = asyncErrorHandler(async (req, res) => {
             },
         },
     ]);
-
+    console.log('STATS', stats);
     const formattedStats = {
         easy: { total: 0, completed: 0 },
         medium: { total: 0, completed: 0 },
         hard: { total: 0, completed: 0 },
+        overall: { total: 0, completed: 0 },
     };
 
     stats.forEach((stat) => {
@@ -157,6 +173,9 @@ export const getProblemStats = asyncErrorHandler(async (req, res) => {
             total: stat.total,
             completed: stat.completed,
         };
+
+        formattedStats.overall.total += stat.total;
+        formattedStats.overall.completed += stat.completed;
     });
 
     res.status(200).json(formattedStats);

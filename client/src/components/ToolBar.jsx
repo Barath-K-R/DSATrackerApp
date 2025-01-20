@@ -1,9 +1,55 @@
 import React, { useState } from 'react';
 import { FaLayerGroup, FaRandom } from "react-icons/fa";
+import { useProblemContext } from '../context/problemContext/problemContext';
 
-
-const ToolBar = ({setGroupedView}) => {
+const ToolBar = () => {
     const [focused, setFocused] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const { groupedProblems, randomProblem, groupedView, dispatch } = useProblemContext();
+
+    const handleSearchChange = (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+
+        if (query === "") {
+            dispatch({ type: "RESET_GROUPED_PROBLEMS" });
+        } else {
+            const filteredGrouped = Object.fromEntries(
+                Object.entries(groupedProblems).map(([type, problems]) => [
+                    type,
+                    problems.filter((problem) => problem.name.toLowerCase().includes(query)),
+                ])
+            );
+            dispatch({ type: "SET_GROUPED_PROBLEMS", payload: filteredGrouped });
+            dispatch({ type: "TOGGLE_GROUP_VIEW", payload: false })
+        }
+    };
+
+    const shuffleProblem = () => {
+        if (randomProblem) {
+            dispatch({ type: "SET_RANDOM_PROBLEM", payload: null });
+            dispatch({ type: "TOGGLE_GROUP_VIEW", payload: true });
+            return;
+        }
+        const problemTypesKeys = Object.keys(groupedProblems);
+        if (problemTypesKeys.length === 0) return;
+
+        const randomType =
+            problemTypesKeys[Math.floor(Math.random() * problemTypesKeys.length)];
+
+        const problems = groupedProblems[randomType];
+        if (problems && problems.length > 0) {
+            const randomProblem = problems[Math.floor(Math.random() * problems.length)];
+            dispatch({ type: "SET_RANDOM_PROBLEM", payload: randomProblem });
+            dispatch({ type: "TOGGLE_GROUP_VIEW" });
+        }
+    };
+
+    const handleGroupView = () => {
+        dispatch({ type: "TOGGLE_GROUP_VIEW", payload: !groupedView })
+        dispatch({ type: "SET_RANDOM_PROBLEM", payload: null })
+    }
 
     return (
         <div className='w-full flex  items-center my-2 p-2 pr-4 rounded-sm bg-customGray'>
@@ -14,15 +60,17 @@ const ToolBar = ({setGroupedView}) => {
                     className={`bg-customDark p-1 px-2 border border-blue-400 focus:border-blue-500 focus:outline-none focus:w-4/6 transition-all duration-300 ease-in-out ${focused ? 'w-7/12 transform' : 'w-3/12'}`}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
+                    onChange={handleSearchChange}
                 />
             </div>
 
             <div className="tools flex justify-between items-center gap-5 px-2">
                 <div className="group-icon flex justify-center items-center w-12 h-8 rounded-2xl border-[3px] border-blue-500 hover:bg-blue-500 cursor-pointer"
-                onClick={()=>setGroupedView(prev=>!prev)}>
+                    onClick={handleGroupView}>
                     <FaLayerGroup size={18} />
                 </div>
-                <div className="group-icon flex justify-center items-center w-12 h-8 bg-blue-500 rounded-lg  hover:bg-blue-400 cursor-pointer">
+                <div className="group-icon flex justify-center items-center w-12 h-8 bg-blue-500 rounded-lg  hover:bg-blue-400 cursor-pointer"
+                    onClick={shuffleProblem}>
                     <FaRandom size={18} />
                 </div>
             </div>

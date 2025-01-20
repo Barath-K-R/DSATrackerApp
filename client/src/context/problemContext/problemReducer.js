@@ -6,8 +6,13 @@ export const problemReducer = (state, action) => {
       return {
         ...state,
         groupedProblems: action.payload,
+        backupGroupedProblems: state.backupGroupedProblems || action.payload,
       };
-
+    case "RESET_GROUPED_PROBLEMS":
+      return {
+        ...state,
+        groupedProblems: state.backupGroupedProblems, 
+      };
     case "SET_CURRENT_SOLUTIONS":
       return {
         ...state,
@@ -45,36 +50,36 @@ export const problemReducer = (state, action) => {
         },
       };
 
-      case "MOVE_PROBLEM":
-    
-        const { moveProblemId, newType, oldType } = action.payload;
-  
-        const groupedCopy = JSON.parse(JSON.stringify(state.groupedProblems));
-      
-        groupedCopy[oldType] = groupedCopy[oldType].filter(
-          (problem) => problem._id !== moveProblemId
-        );
+    case "MOVE_PROBLEM":
 
-        if (!groupedCopy[newType]) groupedCopy[newType] = [];
-      
- 
-        const movingProblem = state.groupedProblems[oldType].find(
-          (problem) => problem._id === moveProblemId
-        );
-      
-        if (movingProblem) {
-        
-          const problemCopy = { ...movingProblem, type: { ...movingProblem.type } };
-          problemCopy.type.name = newType;
-      
-          groupedCopy[newType].push(problemCopy);
-        }
-      
-        return {
-          ...state,
-          groupedProblems: groupedCopy,
-        };
-      
+      const { moveProblemId, newType, oldType } = action.payload;
+
+      const groupedCopy = JSON.parse(JSON.stringify(state.groupedProblems));
+
+      groupedCopy[oldType] = groupedCopy[oldType].filter(
+        (problem) => problem._id !== moveProblemId
+      );
+
+      if (!groupedCopy[newType]) groupedCopy[newType] = [];
+
+
+      const movingProblem = state.groupedProblems[oldType].find(
+        (problem) => problem._id === moveProblemId
+      );
+
+      if (movingProblem) {
+
+        const problemCopy = { ...movingProblem, type: { ...movingProblem.type } };
+        problemCopy.type.name = newType;
+
+        groupedCopy[newType].push(problemCopy);
+      }
+
+      return {
+        ...state,
+        groupedProblems: groupedCopy,
+      };
+
     case 'SET_PROBLEM_TO_MOVE':
       return {
         ...state,
@@ -85,25 +90,25 @@ export const problemReducer = (state, action) => {
         ...state,
         stats: action.payload,
       }
-      case "UPDATE_STATS_TOTAL_COUNT":
-        const { difficulty, operation } = action.payload;
- 
-        return {
-          ...state,
-          stats: {
-            ...state.stats,
-            [difficulty.toLowerCase()]: {
-              ...state.stats[difficulty.toLowerCase()],
-              total: state.stats[difficulty.toLowerCase()].total + operation,
-            },
+    case "UPDATE_STATS_TOTAL_COUNT":
+      const { difficulty, operation } = action.payload;
+
+      return {
+        ...state,
+        stats: {
+          ...state.stats,
+          [difficulty.toLowerCase()]: {
+            ...state.stats[difficulty.toLowerCase()],
+            total: state.stats[difficulty.toLowerCase()].total + operation,
           },
-        };
-      
-      case "UPDATE_COMPLETION_STATUS":
+        },
+      };
+
+    case "UPDATE_COMPLETION_STATUS":
       const { isCompleted, difficulty: diff } = action.payload;
 
       const currentStats = state.stats[diff.toLowerCase()];
-      const completionAdjustment = isCompleted ? 1 : -1; 
+      const completionAdjustment = isCompleted ? 1 : -1;
 
       return {
         ...state,
@@ -113,57 +118,65 @@ export const problemReducer = (state, action) => {
             ...currentStats,
             completed: currentStats.completed + completionAdjustment,
           },
+          overall: {
+            ...state.stats.overall,
+            completed: state.stats.overall.completed + completionAdjustment,
+          },
         },
       }
 
-      case "SORT_GROUPED_PROBLEMS_BY_NAME": {
-        const { type, order } = action.payload;
-        console.log(action.payload);
-      
-        if (!state.groupedProblems[type]) return state;
-  
-       
-        const sortedProblems = [...state.groupedProblems[type]].sort((a, b) => {
-          const nameA = a.name.toLowerCase();
-          const nameB = b.name.toLowerCase();
-          if (nameA < nameB) return order === 1 ? -1 : 1;
-          if (nameA > nameB) return order === 1 ? 1 : -1;
-          return 0;
-        });
-  
-        return {
-          ...state,
-          groupedProblems: {
-            ...state.groupedProblems,
-            [type]: sortedProblems,
-          },
-        };
-      }
-      case "SORT_PROBLEMS_BY_DIFFICULTY": {
-        const { type, order } = action.payload;
-  
-        
-        if (!state.groupedProblems[type]) return state;
-  
-        
-        const difficultyOrder = ["easy", "medium", "hard"];
-        if (order === -1) difficultyOrder.reverse();
-  
-        const sortedProblems = [...state.groupedProblems[type]].sort((a, b) => {
-          const difficultyA = a.difficulty.toLowerCase();
-          const difficultyB = b.difficulty.toLowerCase();
-  
-          return difficultyOrder.indexOf(difficultyA) - difficultyOrder.indexOf(difficultyB);
-        });
+    case "SORT_GROUPED_PROBLEMS_BY_NAME": {
+      const { type, order } = action.payload;
+      console.log(action.payload);
 
-        return {
-          ...state,
-          groupedProblems: {
-            ...state.groupedProblems,
-            [type]: sortedProblems,
-          },
-        };
-      }
+      if (!state.groupedProblems[type]) return state;
+
+
+      const sortedProblems = [...state.groupedProblems[type]].sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        if (nameA < nameB) return order === 1 ? -1 : 1;
+        if (nameA > nameB) return order === 1 ? 1 : -1;
+        return 0;
+      });
+
+      return {
+        ...state,
+        groupedProblems: {
+          ...state.groupedProblems,
+          [type]: sortedProblems,
+        },
+      };
+    }
+    case "SORT_PROBLEMS_BY_DIFFICULTY": {
+      const { type, order } = action.payload;
+
+
+      if (!state.groupedProblems[type]) return state;
+
+
+      const difficultyOrder = ["easy", "medium", "hard"];
+      if (order === -1) difficultyOrder.reverse();
+
+      const sortedProblems = [...state.groupedProblems[type]].sort((a, b) => {
+        const difficultyA = a.difficulty.toLowerCase();
+        const difficultyB = b.difficulty.toLowerCase();
+
+        return difficultyOrder.indexOf(difficultyA) - difficultyOrder.indexOf(difficultyB);
+      });
+
+      return {
+        ...state,
+        groupedProblems: {
+          ...state.groupedProblems,
+          [type]: sortedProblems,
+        },
+      };
+    }
+    case "SET_RANDOM_PROBLEM":
+      return { ...state, randomProblem: action.payload };
+    case "TOGGLE_GROUP_VIEW":
+      return { ...state, groupedView: action.payload };
     default:
       return state;
   }

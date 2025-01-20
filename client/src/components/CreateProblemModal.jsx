@@ -3,6 +3,7 @@ import { getAllProblemsTypes, createProblem, createProblemType } from "../api/pr
 import { useProblemContext } from "../context/problemContext/problemContext";
 import { useModalContext } from "../context/modalContext/modalContext";
 import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useAuthContext } from "../context/authContext/authContext";
 
 const CreateProblemModal = ({ isOpen, onClose, onSubmit }) => {
   const [problemData, setProblemData] = useState({
@@ -16,6 +17,7 @@ const CreateProblemModal = ({ isOpen, onClose, onSubmit }) => {
 
   const { groupedProblems, problemTypes, dispatch } = useProblemContext();
   const { toggleCreateProblemModal } = useModalContext();
+  const {authUser}=useAuthContext();
 
   const queryClient = useQueryClient();
 
@@ -71,7 +73,7 @@ const CreateProblemModal = ({ isOpen, onClose, onSubmit }) => {
 
     if (problemData.type === "other" && newType.trim()) {
       try {
-        const newTypeResponse = await createProblemTypeMutation.mutateAsync({ name: newType.trim() });
+        const newTypeResponse = await createProblemTypeMutation.mutateAsync({ name: newType.trim(),userId:authUser._id});
         selectedTypeId = newTypeResponse.data.problemType._id;
       } catch (error) {
         console.error("Error creating new problem type:", error);
@@ -80,7 +82,7 @@ const CreateProblemModal = ({ isOpen, onClose, onSubmit }) => {
     }
 
     try {
-      await createProblemMutation.mutateAsync({ ...problemData, type: selectedTypeId });
+      await createProblemMutation.mutateAsync({ ...problemData, type: selectedTypeId,userId:authUser._id });
       setProblemData({ name: "", difficulty: "Easy", link: "", type: "" });
       setNewType("");
       onClose();
