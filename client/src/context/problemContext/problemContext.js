@@ -4,7 +4,7 @@ import { problemReducer } from './problemReducer.js';
 const ProblemContext = createContext();
 const initialState = {
     groupedProblems: {},
-    backupGroupedProblems: {}, 
+    backupGroupedProblems: null, 
     currentSolutions: [],
     problemTypes: [],
     activeType: null,

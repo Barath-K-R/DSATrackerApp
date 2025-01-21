@@ -8,13 +8,15 @@ const ProfileModal = () => {
     const { dispatch } = useAuthContext();
 
     const handleLogout = async () => {
+        toggleProfileModal();
         try {
             const logoutResponse = await logout()
         } catch (error) {
             console.error('Error during logout:', error);
         }
+        
         dispatch({ type: 'LOGOUT' });
-        toggleProfileModal();
+       
     }
     return (
         <div className="absolute right-2 top-7 bg-white px-2 py-1 text-lg rounded shadow-lg w-28 h-auto z-50">

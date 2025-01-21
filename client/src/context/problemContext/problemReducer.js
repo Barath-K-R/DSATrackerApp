@@ -8,10 +8,42 @@ export const problemReducer = (state, action) => {
         groupedProblems: action.payload,
         backupGroupedProblems: state.backupGroupedProblems || action.payload,
       };
+    case "FILTER_GROUPED_PROBLEMS":
+      const query = action.payload.toLowerCase();
+      if (query === "") {
+        return {
+          ...state,
+          groupedProblems: state.backupGroupedProblems,
+        };
+      } else {
+        const filteredGrouped = Object.fromEntries(
+          Object.entries(state.backupGroupedProblems).map(([type, problems]) => [
+            type,
+            problems.filter((problem) => problem.name.toLowerCase().includes(query)),
+          ])
+        );
+        return {
+          ...state,
+          groupedProblems: filteredGrouped,
+        };
+      }
+    case "FILTER_FAVOURITE_PROBLEMS":
+      const favouriteGrouped = Object.fromEntries(
+        Object.entries(state.backupGroupedProblems).map(([type, problems]) => [
+          type,
+          problems.filter((problem) => problem.isFavourite),
+        ])
+      );
+
+      return {
+        ...state,
+        groupedProblems: favouriteGrouped,
+      };
+
     case "RESET_GROUPED_PROBLEMS":
       return {
         ...state,
-        groupedProblems: state.backupGroupedProblems, 
+        groupedProblems: state.backupGroupedProblems,
       };
     case "SET_CURRENT_SOLUTIONS":
       return {

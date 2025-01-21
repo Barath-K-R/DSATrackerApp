@@ -78,7 +78,7 @@ const ProblemsTable = ({ type, handleStarClick, handleStatusClick }) => {
                                             color={randomProblem.isFavourite ? "orange" : "white"}
                                             style={{
                                                 stroke: "orange",
-                                                strokeWidth: 2, 
+                                                strokeWidth: 2,
                                             }}
                                             onClick={() => handleStarClick(randomProblem)}
                                         />
@@ -121,6 +121,15 @@ const ProblemsTable = ({ type, handleStarClick, handleStatusClick }) => {
 
             {!randomProblem && <div className={`table-div w-full overflow-hidden transform transition-all duration-500 ease-in-out rounded-lg z-10`}>
                 <table className="problem-table w-full text-white bg-customGray rounded-lg text-left">
+                    <colgroup>
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "40%" }} />
+                        <col style={{ width: "20%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "5%" }} />
+                        <col style={{ width: "5%" }} />
+                    </colgroup>
                     <thead>
                         <tr className="h-12">
                             <th className="px-4 py-2 text-center">Status</th>
@@ -210,24 +219,30 @@ const ProblemsTable = ({ type, handleStarClick, handleStatusClick }) => {
 
                                 </td>
                                 <td>
-                                    <div
-                                        className="settings flex justify-center items-center w-6 h-6 hover:bg-customDark rounded-md cursor-pointer"
-                                        onClick={() => handleRemoveProblem(problem)}
-                                    >
-                                        <AiFillMinusCircle color="#e93b20" />
+                                    <div className="remove-button-wrapper w-full h-full flex justify-center items-center">
+                                        <div
+                                            className="settings flex justify-center items-center w-6 h-6 hover:bg-customDark rounded-md cursor-pointer"
+                                            onClick={() => handleRemoveProblem(problem)}
+                                        >
+                                            <AiFillMinusCircle color="#e93b20" />
+                                        </div>
                                     </div>
+
                                 </td>
                                 <td>
-                                    <div
-                                        className="settings flex justify-center items-center w-6 h-6 hover:bg-customDark rounded-md cursor-pointer"
-                                        onClick={() => {
-                                            toggleTypeSelectionModal();
-                                            console.log('problemtomove=', problem)
-                                            dispatch({ type: 'SET_PROBLEM_TO_MOVE', payload: problem });
-                                        }}
-                                    >
-                                        <BsArrowUpRight />
+                                    <div className="move-button-wrapper w-full h-full flex justify-center items-center">
+                                        <div
+                                            className="settings flex justify-center items-center w-6 h-6 hover:bg-customDark rounded-md cursor-pointer"
+                                            onClick={() => {
+                                                toggleTypeSelectionModal();
+                                                console.log('problemtomove=', problem)
+                                                dispatch({ type: 'SET_PROBLEM_TO_MOVE', payload: problem });
+                                            }}
+                                        >
+                                            <BsArrowUpRight />
+                                        </div>
                                     </div>
+
                                 </td>
                             </tr>
                         ))}

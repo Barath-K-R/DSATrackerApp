@@ -1,29 +1,20 @@
 import React, { useState } from 'react';
+
+import { AiFillStar } from "react-icons/ai";
 import { FaLayerGroup, FaRandom } from "react-icons/fa";
 import { useProblemContext } from '../context/problemContext/problemContext';
+import { useModalContext } from '../context/modalContext/modalContext';
 
 const ToolBar = () => {
     const [focused, setFocused] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-
+    const [favouriteFilterOn, setfavouriteFilterOn] = useState(false)
     const { groupedProblems, randomProblem, groupedView, dispatch } = useProblemContext();
 
     const handleSearchChange = (e) => {
-        const query = e.target.value.toLowerCase();
-        setSearchQuery(query);
-
-        if (query === "") {
-            dispatch({ type: "RESET_GROUPED_PROBLEMS" });
-        } else {
-            const filteredGrouped = Object.fromEntries(
-                Object.entries(groupedProblems).map(([type, problems]) => [
-                    type,
-                    problems.filter((problem) => problem.name.toLowerCase().includes(query)),
-                ])
-            );
-            dispatch({ type: "SET_GROUPED_PROBLEMS", payload: filteredGrouped });
-            dispatch({ type: "TOGGLE_GROUP_VIEW", payload: false })
-        }
+        dispatch({ type: "TOGGLE_GROUP_VIEW", payload: false })
+        const query = e.target.value;
+        dispatch({ type: "FILTER_GROUPED_PROBLEMS", payload: query });
     };
 
     const shuffleProblem = () => {
@@ -46,6 +37,18 @@ const ToolBar = () => {
         }
     };
 
+    const handleFavouriteFilter = () => {
+        if (!favouriteFilterOn){
+            setfavouriteFilterOn(true)
+            dispatch({type:"TOGGLE_GROUP_VIEW",payload:false})
+            dispatch({ type: "FILTER_FAVOURITE_PROBLEMS" })
+        }
+        else {
+            setfavouriteFilterOn(false)
+            dispatch({ type: "RESET_GROUPED_PROBLEMS" })
+        }
+    }
+
     const handleGroupView = () => {
         dispatch({ type: "TOGGLE_GROUP_VIEW", payload: !groupedView })
         dispatch({ type: "SET_RANDOM_PROBLEM", payload: null })
@@ -65,6 +68,10 @@ const ToolBar = () => {
             </div>
 
             <div className="tools flex justify-between items-center gap-5 px-2">
+                <div className="star-div flex justify-center items-center hover:bg-customDark w-8 h-8 rounded-md cursor-pointer" onClick={handleFavouriteFilter}>
+                    <AiFillStar color="orange" size={24} />
+                </div>
+
                 <div className="group-icon flex justify-center items-center w-12 h-8 rounded-2xl border-[3px] border-blue-500 hover:bg-blue-500 cursor-pointer"
                     onClick={handleGroupView}>
                     <FaLayerGroup size={18} />

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const ProgressBar = ({ color, width ,totalwidth}) => {
-  console.log(color,width)
+  
   return (
     <div className={`relative w-${totalwidth} bg-gray-300 rounded-full h-2.5`}>
       <div
