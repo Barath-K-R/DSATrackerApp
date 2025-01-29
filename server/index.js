@@ -32,17 +32,6 @@ app.use(cors({
     credentials: true,
 }));
 
-// app.use((req, res, next) => {
-//     console.log('--- Incoming Request ---');
-//     console.log('Method:', req.method); 
-//     console.log('URL:', req.originalUrl);
-//     console.log('Headers:', req.headers); 
-//     console.log('Request Body:', req.body); 
-//     console.log('------------------------');
-//     next();
-//   });
-  
-
 
 app.get('/', (req, res) => {
     res.send("Hello, DSA Tracker App!");
